@@ -8,11 +8,12 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var background = SKSpriteNode(imageNamed: "Background")
     
     var thorsHammer = SKSpriteNode()
+    var stacy = SKSpriteNode()
     
     override func didMove(to view: SKView)
     {
@@ -24,11 +25,34 @@ class GameScene: SKScene {
         
         self.physicsBody = border
         
+        
         physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
+        physicsWorld.contactDelegate = self
         
         thorsHammer = childNode(withName: "Hammer") as! SKSpriteNode
-        thorsHammer.position = CGPoint(x: 200, y: 200)
+        stacy = childNode(withName: "stacy") as! SKSpriteNode
         
+        thorsHammer.physicsBody?.contactTestBitMask = 1 | 2
+        stacy.physicsBody?.contactTestBitMask = 3
+      
+        
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact)
+    {
+        if (contact.bodyA.categoryBitMask == 1 || contact.bodyB.categoryBitMask == 1) && (contact.bodyA.categoryBitMask == 3 || contact.bodyB.categoryBitMask == 3)
+        {
+            // bob hit the hammer
+            if contact.bodyA.categoryBitMask == 1
+            {
+                contact.bodyA.node?.removeFromParent()
+            }
+            else
+            {
+                contact.bodyB.node?.removeFromParent()
+            }
+            
+        }
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
